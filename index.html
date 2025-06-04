@@ -1,0 +1,127 @@
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
+
+export default function DementiaAssessment() {
+  const [startAssessment, setStartAssessment] = useState(false);
+  const [birthDate, setBirthDate] = useState('');
+  const [examDate, setExamDate] = useState();
+  const [gender, setGender] = useState('');
+  const [bloodPressureSystolic, setBloodPressureSystolic] = useState('');
+  const [bloodPressureDiastolic, setBloodPressureDiastolic] = useState('');
+  const [height, setHeight] = useState('');
+  const [weight, setWeight] = useState('');
+  const [pulse, setPulse] = useState('');
+  const [temperature, setTemperature] = useState('');
+  const [mmse, setMmse] = useState('');
+  const [cdr, setCdr] = useState('');
+  const [npi, setNpi] = useState('');
+  const [adl, setAdl] = useState('');
+  const [gds, setGds] = useState('');
+  const [bai, setBai] = useState('');
+  const [result, setResult] = useState('');
+
+  const generateResult = () => {
+    let results = [];
+    if (parseFloat(mmse) < 24) results.push('MMSE < 24: 인지저하 의심');
+    if (parseFloat(cdr) >= 1) results.push('CDR ≥ 1: 경도치매 이상');
+    if (parseFloat(npi) >= 4) results.push('NPI ≥ 4: 정서 및 행동 이상');
+    if (parseFloat(adl) < 20) results.push('ADL < 20: 일상생활 저하');
+    if (parseFloat(gds) >= 11) results.push('GDS ≥ 11: 중등도 이상 우울');
+    if (parseFloat(bai) >= 8) results.push('BAI ≥ 8: 경미 이상 불안');
+
+    if (results.length === 0) {
+      setResult('입력하신 수치는 정상 범위로 보입니다. 정기적인 검진을 권장드립니다.');
+    } else {
+      setResult('다음과 같은 주의 요인이 발견되었습니다:\n' + results.join('\n'));
+    }
+  };
+
+  const typeDescriptions = 
+`1. 염증유형\nhs-CRP, ESR, 삼투압, 호모시스테인 등의 수치가 높고, 만성염증 및 산화스트레스가 인지저하에 영향을 미치는 경우입니다.\n\n2. 영양위축형\n비타민D, 엽산, 아연 등의 부족으로 인한 신경영양 결핍 상태입니다.\n\n3. 당독소유형\n인슐린 > 25, HbA1c > 5.6 등으로 나타나는 고혈당 및 인슐린저항성 상태입니다.\n\n4. 독성유형\n혈중 구리 > 120, 아말감 등 환경 독소에 노출된 경우입니다.\n\n5. 복합형\n위 2개 이상 유형이 동시에 존재하는 고위험군입니다.\n\n6. 정서형\nNPI ≥ 4, GDS ≥ 11, BAI ≥ 8 등 정서적 불균형이 인지기능 저하와 관련된 경우입니다.`;
+
+  const recodeGuide = 
+`ReCODE 기준에 따르면, 치매는 다양한 대사·면역·환경 원인이 누적되어 발생하는 다요인 질환이며,\n이들의 교차분석을 통해 예방 전략을 세우는 것이 중요합니다.`;
+
+  return (
+    <div className="space-y-10 p-8 bg-black text-gray-100 min-h-screen">
+      <section className="text-center space-y-4">
+        <h1 className="text-4xl font-extrabold text-gray-200">온빛 프로토콜 치매 사전평가</h1>
+        <p className="text-md max-w-3xl mx-auto text-gray-300">
+          온빛 프로토콜은 45세 이상을 위한 치매 예방 평가 도구입니다. 혈액, 인지, 생활 데이터를 기반으로 위험 유형을 분류하고 맞춤형 가이드를 제공합니다.
+        </p>
+        <Button onClick={() => setStartAssessment(true)} className="mt-4 text-lg px-6 py-2 bg-green-700 text-white hover:bg-green-600">검사 시작</Button>
+      </section>
+
+      <section className="bg-gray-800 p-6 rounded-lg space-y-4">
+        <h2 className="text-2xl font-bold text-yellow-300">온빛프로토콜의 핵심</h2>
+        <ul className="list-disc list-inside text-gray-200">
+          <li>개인 맞춤형 인지저하 예방 전략</li>
+          <li>ReCODE 기반의 다요인 분석과 치매위험 유형 분류</li>
+          <li>케톤식이, 수면, 운동, 감정관리, 해독, 장건강, 호르몬 균형 등 7대 영역 실천 가이드</li>
+        </ul>
+        <p className="text-sm text-gray-400">{recodeGuide}</p>
+      </section>
+
+      {startAssessment && (
+        <>  
+          <div className="flex justify-center">
+            <Card className="bg-gray-900 w-full">
+              <CardContent className="space-y-4">
+                <h2 className="text-xl font-semibold text-yellow-300">기본 정보 입력</h2>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-4">
+                    <div className="flex"><Button className="bg-blue-900 text-white">이름</Button><Input placeholder="홍길동" className="bg-black text-gray-300" /></div>
+                    <div className="flex"><Button className="bg-blue-900 text-white">생년월일</Button><Input type="date" className="bg-black text-gray-300 w-full" value={birthDate} onChange={e => setBirthDate(e.target.value)} /></div>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="flex"><Button className="bg-blue-900 text-white">성별</Button><div className="flex items-center space-x-2 bg-black text-gray-300 px-4 py-2"><label><input type="radio" name="gender" value="남" onChange={() => setGender('남')} /> 남</label><label><input type="radio" name="gender" value="여" onChange={() => setGender('여')} /> 여</label></div></div>
+                    <div className="flex"><Button className="bg-blue-900 text-white">검진일</Button><Popover><PopoverTrigger asChild><Button variant="outline" className="bg-black text-gray-300 w-full">{examDate ? format(examDate, 'yyyy-MM-dd') : '날짜 선택'}</Button></PopoverTrigger><PopoverContent className="w-auto p-0 bg-white text-black"><Calendar mode="single" selected={examDate} onSelect={setExamDate} initialFocus fromYear={2020} toYear={2030} /></PopoverContent></Popover></div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="flex justify-center">
+            <Card className="bg-gray-900 w-full">
+              <CardContent className="space-y-4">
+                <h2 className="text-xl font-semibold text-yellow-300">활력징후 및 검사결과 입력</h2>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex"><Button className="bg-blue-900 text-white">혈압</Button><Input placeholder="수축기" className="bg-black text-gray-300 w-1/2" value={bloodPressureSystolic} onChange={e => setBloodPressureSystolic(e.target.value)} /><Input placeholder="이완기" className="bg-black text-gray-300 w-1/2" value={bloodPressureDiastolic} onChange={e => setBloodPressureDiastolic(e.target.value)} /></div>
+                  <div className="flex"><Button className="bg-blue-900 text-white">키/몸무게</Button><Input placeholder="키" className="bg-black text-gray-300 w-1/2" value={height} onChange={e => setHeight(e.target.value)} /><Input placeholder="몸무게" className="bg-black text-gray-300 w-1/2" value={weight} onChange={e => setWeight(e.target.value)} /></div>
+                  <div className="flex"><Button className="bg-blue-900 text-white">맥박</Button><Input placeholder="예: 72" className="bg-black text-gray-300" value={pulse} onChange={e => setPulse(e.target.value)} /></div>
+                  <div className="flex"><Button className="bg-blue-900 text-white">체온</Button><Input placeholder="예: 36.5℃" className="bg-black text-gray-300" value={temperature} onChange={e => setTemperature(e.target.value)} /></div>
+                  <div className="flex"><Button className="bg-blue-900 text-white">MMSE</Button><Input placeholder="MMSE 점수" className="bg-black text-gray-300" value={mmse} onChange={e => setMmse(e.target.value)} /></div>
+                  <div className="flex"><Button className="bg-blue-900 text-white">CDR</Button><Input placeholder="CDR 점수" className="bg-black text-gray-300" value={cdr} onChange={e => setCdr(e.target.value)} /></div>
+                  <div className="flex"><Button className="bg-blue-900 text-white">NPI</Button><Input placeholder="NPI 점수" className="bg-black text-gray-300" value={npi} onChange={e => setNpi(e.target.value)} /></div>
+                  <div className="flex"><Button className="bg-blue-900 text-white">ADL</Button><Input placeholder="ADL 점수" className="bg-black text-gray-300" value={adl} onChange={e => setAdl(e.target.value)} /></div>
+                  <div className="flex"><Button className="bg-blue-900 text-white">GDS</Button><Input placeholder="GDS 점수" className="bg-black text-gray-300" value={gds} onChange={e => setGds(e.target.value)} /></div>
+                  <div className="flex"><Button className="bg-blue-900 text-white">BAI</Button><Input placeholder="BAI 점수" className="bg-black text-gray-300" value={bai} onChange={e => setBai(e.target.value)} /></div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="flex justify-center mt-4">
+            <Button onClick={generateResult} className="bg-green-700 text-white hover:bg-green-600 px-6 py-2 text-lg">분석 결과 보기</Button>
+          </div>
+
+          <Card className="bg-gray-900">
+            <CardContent className="space-y-4">
+              <h2 className="text-xl font-semibold text-yellow-300">분석 결과 및 가이드</h2>
+              <div className="bg-gray-800 text-gray-100 p-4 rounded-md whitespace-pre-wrap text-sm">{typeDescriptions}</div>
+              <Textarea className="mt-4 bg-black text-white border-gray-700" value={result} rows={8} readOnly />
+            </CardContent>
+          </Card>
+        </>
+      )}
+    </div>
+  );
+}
